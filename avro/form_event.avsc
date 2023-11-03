@@ -1,0 +1,17 @@
+{
+  "type": "record",
+  "name": "FormEvent",
+  "fields": [
+    {"name": "id", "type": "string"},
+    {"name": "type", "type": "string"},
+    {"name": "title", "type": "string"},
+    {"name": "settings_language", "type": ["null", "string"]},
+    {"name": "settings_progress_bar", "type": ["null", "string"]},
+    {"name": "settings_show_time_to_complete", "type": ["null", "boolean"]},
+    {"name": "settings_show_number_of_submissions", "type": ["null", "boolean"]},
+    {"name": "settings_redirect_after_submit_url", "type": ["null", "string"]},
+    {"name": "retrieved_timestamp", "type": "string"},
+    {"name": "event_happened_at", "type": "string"},
+    {"name": "event_type", "type": "string"}
+  ]
+}

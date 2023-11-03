@@ -1,0 +1,27 @@
+[tool.poetry]
+name = "form-etl"
+version = "0.1.0"
+description = ""
+authors = ["Daniel Stevenson <26047171+daniel-cortez-stevenson@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = ">3.8.1,<3.11"
+apache-flink-statefun = "^3.3.0"
+apache-beam = "2.51.0"
+setuptools = "^68.2.2"
+boto3 = "^1.28.78"
+fastavro = "^1.9.0"
+
+[tool.poetry.group.dev]
+optional = true
+
+[tool.poetry.group.dev.dependencies]
+black = "^23.10.1"
+isort = "^5.12.0"
+flake8 = "^6.1.0"
+requests-mock = "^1.11.0"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

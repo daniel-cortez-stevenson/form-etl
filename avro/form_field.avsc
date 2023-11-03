@@ -1,0 +1,25 @@
+{
+  "type": "record",
+  "name": "FormField",
+  "fields": [
+    {"name": "id", "type": "string"},
+    {"name": "title", "type": "string"},
+    {"name": "reference", "type": "string"},
+    {"name": "validations_required", "type": ["null", "boolean"]},
+    {"name": "type", "type": "string"},
+    {"name": "attachment_type", "type": ["null", "string"]},
+    {"name": "attachment_href", "type": ["null", "string"]},
+    {"name": "form_id", "type": "string"},
+    {"name": "form_type", "type": "string"},
+    {"name": "form_title", "type": "string"},
+    {"name": "form_settings_language", "type": ["null", "string"]},
+    {"name": "form_settings_progress_bar", "type": ["null", "string"]},
+    {"name": "form_settings_show_time_to_complete", "type": ["null", "boolean"]},
+    {"name": "form_settings_show_number_of_submissions", "type": ["null", "boolean"]},
+    {"name": "form_settings_redirect_after_submit_url", "type": ["null", "string"]},
+    {"name": "form_retrieved_timestamp", "type": "string"},
+    {"name": "form_event_happened_at", "type": "string"},
+    {"name": "form_event_type", "type": "string"},
+    {"name": "properties_default_country_code", "type": ["null", "string"]}
+  ]
+}
