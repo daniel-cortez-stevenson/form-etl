@@ -12,7 +12,6 @@ from apache_beam.options.pipeline_options import PipelineOptions
 from fastavro.schema import load_schema
 
 FORM_EVENT_SCHEMA = load_schema("./avro/form_event.avsc")
-FORM_EVENT_RAW_SCHEMA = load_schema("./avro/form_event_raw.avsc")
 FORM_FIELD_SCHEMA = load_schema("./avro/form_field.avsc")
 
 

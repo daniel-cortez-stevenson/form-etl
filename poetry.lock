@@ -107,20 +107,6 @@ interactive-test = ["chromedriver-binary (>=100,<114)", "needle (>=0.5.0,<1)", "
 test = ["cryptography (>=41.0.2)", "freezegun (>=0.3.12)", "hypothesis (>5.0.0,<=7.0.0)", "joblib (>=1.0.1)", "mock (>=1.0.1,<6.0.0)", "pandas (<2.0.0)", "parameterized (>=0.7.1,<0.10.0)", "psycopg2-binary (>=2.8.5,<3.0.0)", "pyhamcrest (>=1.9,!=1.10.0,<3.0.0)", "pytest (>=7.1.2,<8.0)", "pytest-timeout (>=2.1.0,<3)", "pytest-xdist (>=2.5.0,<4)", "pyyaml (>=3.12,<7.0.0)", "requests-mock (>=1.7,<2.0)", "scikit-learn (>=0.20.0)", "sqlalchemy (>=1.3,<2.0)", "tenacity (>=8.0.0,<9)", "testcontainers[mysql] (>=3.0.3,<4.0.0)"]
 
 [[package]]
-name = "apache-flink-statefun"
-version = "3.3.0"
-description = "Python SDK for Apache Flink Stateful functions"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "apache-flink-statefun-3.3.0.tar.gz", hash = "sha256:b5ec271f476e86eb6cdb6b7d4013aaa022606ad27134bfebe228c49156c7da14"},
-    {file = "apache_flink_statefun-3.3.0-py3-none-any.whl", hash = "sha256:9b572e23672708b5212f5d139a457a2c112c62ae1d643bd363094d9bd168bc4f"},
-]
-
-[package.dependencies]
-protobuf = ">=3.11.3,<4.0.0"
-
-[[package]]
 name = "backports-zoneinfo"
 version = "0.2.1"
 description = "Backport of the standard library zoneinfo module"
@@ -1526,22 +1512,6 @@ botocore = ">=1.12.36,<2.0a.0"
 crt = ["botocore[crt] (>=1.20.29,<2.0a.0)"]
 
 [[package]]
-name = "setuptools"
-version = "68.2.2"
-description = "Easily download, build, install, upgrade, and uninstall Python packages"
-optional = false
-python-versions = ">=3.8"
-files = [
-    {file = "setuptools-68.2.2-py3-none-any.whl", hash = "sha256:b454a35605876da60632df1a60f736524eb73cc47bbc9f3f1ef1b644de74fd2a"},
-    {file = "setuptools-68.2.2.tar.gz", hash = "sha256:4ac1475276d2f1c48684874089fefcd83bd7162ddaafb81fac866ba0db282a87"},
-]
-
-[package.extras]
-docs = ["furo", "jaraco.packaging (>=9.3)", "jaraco.tidelift (>=1.4)", "pygments-github-lexers (==0.0.5)", "rst.linker (>=1.9)", "sphinx (>=3.5)", "sphinx-favicon", "sphinx-hoverxref (<2)", "sphinx-inline-tabs", "sphinx-lint", "sphinx-notfound-page (>=1,<2)", "sphinx-reredirects", "sphinxcontrib-towncrier"]
-testing = ["build[virtualenv]", "filelock (>=3.4.0)", "flake8-2020", "ini2toml[lite] (>=0.9)", "jaraco.develop (>=7.21)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "pip (>=19.1)", "pytest (>=6)", "pytest-black (>=0.3.7)", "pytest-checkdocs (>=2.4)", "pytest-cov", "pytest-enabler (>=2.2)", "pytest-mypy (>=0.9.1)", "pytest-perf", "pytest-ruff", "pytest-timeout", "pytest-xdist", "tomli-w (>=1.0.0)", "virtualenv (>=13.0.0)", "wheel"]
-testing-integration = ["build[virtualenv] (>=1.0.3)", "filelock (>=3.4.0)", "jaraco.envs (>=2.2)", "jaraco.path (>=3.2.0)", "packaging (>=23.1)", "pytest", "pytest-enabler", "pytest-xdist", "tomli", "virtualenv (>=13.0.0)", "wheel"]
-
-[[package]]
 name = "six"
 version = "1.16.0"
 description = "Python 2 and 3 compatibility utilities"
@@ -1745,4 +1715,4 @@ cffi = ["cffi (>=1.11)"]
 [metadata]
 lock-version = "2.0"
 python-versions = ">3.8.1,<3.11"
-content-hash = "cfdfc8ab9d6705c3e89596503433d0272b3995760b9e6c0b9cb81484d7c9807b"
+content-hash = "0cdd332e56ccd33f1ff6c045b3d97c0843a014bd2ecd9299296a40867730de81"
