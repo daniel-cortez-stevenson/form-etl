@@ -7,10 +7,13 @@ import requests_mock
 from apache_beam.testing.test_pipeline import TestPipeline
 from apache_beam.testing.util import assert_that, equal_to
 
-from form_etl.pipeline.form_events import (EnrichEventDataWithFormAPI,
-                                           ExtractEnrichFields,
-                                           convert_kafka_record_to_dict,
-                                           dict_normalize, remove_fields)
+from form_etl.pipeline.form_events import (
+    EnrichEventDataWithFormAPI,
+    ExtractEnrichFields,
+    convert_kafka_record_to_dict,
+    dict_normalize,
+    remove_fields,
+)
 
 
 # Our input data, which will make up the initial PCollection.
@@ -134,7 +137,9 @@ class EnrichEventDataWithFormAPITest(unittest.TestCase):
         )
         with TestPipeline() as p:
             input = p | beam.Create([FORM_EVENTS_DICT])
-            output = input | beam.ParDo(EnrichEventDataWithFormAPI())
+            output = input | beam.ParDo(
+                EnrichEventDataWithFormAPI("http://internal.forms/")
+            )
             assert_that(output, equal_to(expected_output), label="CheckOutput")
 
 

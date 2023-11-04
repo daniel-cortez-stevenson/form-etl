@@ -20,9 +20,10 @@ if __name__ == "__main__":
     parser.add_argument("--bootstrap_servers", default="localhost:9092")
     parser.add_argument("--topics", default="form.events")
     parser.add_argument("--group_id", default="form_etl")
-    parser.add_argument("--form_event_output_path", default="./form_event/")
-    parser.add_argument("--form_field_output_path", default="./form_field/")
+    parser.add_argument("--form_event_output_path", default="./form_event")
+    parser.add_argument("--form_field_output_path", default="./form_field")
     parser.add_argument("--max_num_records", type=int, default=None)
+    parser.add_argument("--api_uri", default="http://localhost:8000/")
 
     known_args, beam_args = parser.parse_known_args()
 

@@ -1,5 +1,6 @@
 import json
 import logging
+import urllib.parse
 from datetime import datetime
 from typing import Optional
 
@@ -22,6 +23,7 @@ def run(
     form_event_output_path: str,
     form_field_output_path: str,
     max_num_records: int,
+    api_uri: str,
     beam_options: Optional[PipelineOptions] = None,
 ) -> None:
     """
@@ -56,37 +58,31 @@ def run(
             )
             | "Deserialize" >> beam.Map(convert_kafka_record_to_dict)
         )
-        # TODO: Remove these. Just so you see something with the Quickstart
-        form_events | "Print form.events" >> beam.Map(logging.info)
-        form_events | "Write form.events" >> WriteToAvro(
-            form_event_output_path, FORM_EVENT_RAW_SCHEMA, file_name_suffix=".avro"
-        )
 
         form_event_data = form_events | "Get Form Data" >> beam.ParDo(
-            EnrichEventDataWithFormAPI()
+            EnrichEventDataWithFormAPI(api_uri)
         )
 
         form_field_data = form_event_data | "Extract Enrich Fields" >> beam.ParDo(
             ExtractEnrichFields()
         )
 
-        (
-            form_field_data
-            | "Normalize Form Fields" >> beam.Map(dict_normalize)
-            | "Write Form Fields"
-            >> WriteToAvro(
-                form_field_output_path, FORM_FIELD_SCHEMA, file_name_suffix=".avro"
-            )
+        form_field_data_output = form_field_data | "Normalize Form Fields" >> beam.Map(
+            dict_normalize
+        )
+        form_field_data_output | "Print form_field output" >> beam.Map(logging.info)
+        form_field_data_output | "Write Form Fields" >> WriteToAvro(
+            form_field_output_path, FORM_FIELD_SCHEMA, file_name_suffix=".avro"
         )
 
-        (
+        form_event_data_output = (
             form_event_data
             | "Drop Fields" >> beam.Map(remove_fields)
             | "Normalize Form Data" >> beam.Map(dict_normalize)
-            | "Write Form Data"
-            >> WriteToAvro(
-                form_event_output_path, FORM_EVENT_SCHEMA, file_name_suffix=".avro"
-            )
+        )
+        form_event_data_output | "Print form_event output" >> beam.Map(logging.info)
+        form_event_data_output | "Write Form Data" >> WriteToAvro(
+            form_event_output_path, FORM_EVENT_SCHEMA, file_name_suffix=".avro"
         )
 
 
@@ -108,8 +104,12 @@ class EnrichEventDataWithFormAPI(beam.DoFn):
     https://stackoverflow.com/a/66701178/22623325
     """
 
+    def __init__(self, uri: str, *unused_args, **unused_kwargs):
+        super().__init__(*unused_args, **unused_kwargs)
+        self.uri = uri
+
     def process(self, form_event_data: dict):
-        uri = f"http://internal.forms/{form_event_data['form_id']}"
+        uri = urllib.parse.urljoin(self.uri, form_event_data["form_id"])
         try:
             res = requests.get(uri)
             res.raise_for_status()
