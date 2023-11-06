@@ -23,11 +23,11 @@ See "Development Environment (MacOS)" to install Python and Poetry.
 # Start Kafka locally
 docker-compose up -d
 
-# Start the API locally
-poetry run uvicorn api:app --reload
-
 # Install Python dependencies
 poetry install --with api
+
+# Start the API locally
+poetry run uvicorn api:app --reload
 
 # Run the Beam app
 # This might not behave properly if --max_num_records is None due to DirectRunner limitations with unbounded sources
@@ -171,3 +171,53 @@ exec zsh -l
 poetry config virtualenvs.prefer-active-python true
 poetry config virtualenvs.in-project true
 ```
+
+## Discussion
+
+### TLDR
+
+If I had to do this for a production deployment, I would re-write the Apache Beam app as a Flink Job (to use the Flink Iceberg connector) and write to Apache Iceberg formatted tables in S3 (with an AWS Glue metastore) to make data available in real-time without having to write a custom IO connector in Apache Beam. I would write the Flink Job in the Scala or Java language (to take advantage of the [Async IO Flink Operator](https://nightlies.apache.org/flink/flink-docs-release-1.18/docs/dev/datastream/operators/asyncio/), which would be more performant when enriching the event data from the API). I wrote the app as an Apache Beam app in the Python SDK for proof-of-concept and to leverage Apache Beam's more friendly test harness. I might also write the raw data to Apache Iceberg tables in S3 to later write data tests (with DBT) that ensure the modelled tables' data are comparable to the raw data.
+
+### Limitations & Potential Improvements
+
+#### App Architecture
+
+- Error handling in the API enrichment transformation is not implemented yet.
+  - Retries with exponential backoff would make the pipeline more stable in the event that the API service is intermittently unavailable.
+  - We could write raw event data to a dead-letter queue in the situation that a form with a specific `id` is not available in the data made available by the API.
+- No integration with a metastore (Hive, Glue, etc.) is supported yet. The data are written in real-time to S3, but are not available for querying in real-time.
+  - We could write a custom Apache Beam I/O connector that would write data via a metastore.
+  - We could re-write the application as a Flink Job that writes data with the [Flink Hive connector](https://github.com/apache/flink-connector-hive).
+- The data are written in a row-based format (Avro), which will be less performant for read-heavy analytical workloads than a columnar format like Parquet. For example, queries on Avro formatted data can not take advantage of column pruning at query-time.
+  - We could either:
+    1. Write a custom Apache Beam I/O connector for Iceberg; or,
+    2. Re-write the application as a Flink Job that uses the [Flink Iceberg connector](https://iceberg.apache.org/docs/latest/).
+  - With Iceberg, we can handle data format conversion from Avro to Parquet more easily without downtime. We might also choose to write to Parquet format and compact many small Parquet files to fewer large Parquet files to analytical improve query performance.
+- We consider the test data to include all possible schemas for form and field entity types. If a new field or form contains backwards-compatible schema changes, we do not handle writing the data.
+  - We could write data that produces an error on write to a dead-letter queue and write data in S3 to Iceberg format. In the event the dead-letter queue becomes populated, we could make backwards-compatible schema changes to the destination table and then re-run the pipeline for data in the dead-letter queue.
+- Enriching the data in a ParDo(DoFn) Apache Beam transformation could create a performance bottleneck.
+  - We could write the app as a Scala/Java Flink Job that leverages the Flink AsyncIO Operator, which would reduce the performance hit of many parallel external API calls from the app runtime.
+
+### Design Choices & Reasoning
+
+### App architecture
+
+- The app is an Apache Beam app written with the Apache Beam Python SDK.
+  - Python is probably the most common language used among data engineers.
+    - The Python SDK reduces the onboarding time we might incur from onboarding Scala or Java-naive team members.
+  - Apache Beam apps can be run in many environments.
+    - Easy end-to-end testing.
+    - Many production deployment options (like the DataflowRunner, FlinkRunner, SparkRunner, and so on).
+  - Apache Beam apps provide a `TestPipeline` for testing pipeline transformations.
+    - Easy unit testing.
+- The app writes data to Avro, a row-based format.
+  - Allows appending to an output file, preventing the many small files problem in a streaming context.
+  - Enforces a schema on-write, unlike JSON-lines or CSV writes.
+
+#### Data Modelling
+
+- We write two tables for form and field entity types from the API and enrich the field data with form metadata. Both form and field entity types are enriched with event metadata from form.events, which indicate the type of action that triggered the data update and resulted in the current form or field data.
+  - Denormalized "One Big Table"-style modelled data is easier to query for downstream analytics.
+  - The field entity type table actually contains all data. The form entity type table is there to reduce the amount of data processed when analytical queries do not need field data to answer questions.
+- We 'unnest' nested JSON fields to top-level columns when possible.
+  - SELECTing JSON column data in analytical queries is not easily readable or particularly usable for downtream data consumers (and, less importantly, can be a performance issue).
