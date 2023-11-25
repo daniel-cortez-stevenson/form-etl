@@ -43,7 +43,6 @@ data = [
 
 @app.get("/{id}")
 async def read_item(id: str, response: Response):
-    response.headers["Date"] = datetime.utcnow().strftime("%a, %d %b %Y %H:%M:%S GMT")
     for payload in data:
         if payload["id"] == id:
             return payload

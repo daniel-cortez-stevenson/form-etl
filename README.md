@@ -1,6 +1,6 @@
 # form-etl
 
-A locally tested Apache Beam pipeline that extracts messages from a Kafka topic, enriches them with an external API, models the data, and writes it to S3.
+A locally tested Apache Beam streaming pipeline that extracts messages from a Kafka topic, enriches them with an external API, models the data, and writes it to S3.
 
 ## Testing
 
@@ -20,7 +20,10 @@ To write to S3, you must have an S3 bucket and configure your access credentials
 See "Development Environment (MacOS)" to install Python and Poetry.
 
 ```zsh
-# Start Kafka locally
+# Init output S3 bucket
+mkdir -p data/output
+
+# Start Kafka & Minio (S3) locally
 docker-compose up -d
 
 # Install Python dependencies
@@ -31,17 +34,14 @@ poetry run uvicorn api:app --reload
 
 # Run the Beam app
 # This might not behave properly if --max_num_records is None due to DirectRunner limitations with unbounded sources
-poetry run python app.py \
-    --runner=DirectRunner \
-    --max_num_records=1 \
-    --bootstrap_servers=localhost:9092 \
-    --api_uri=http://localhost:8000
-    # Uncomment the below for writing to S3!
-    # --form_field_output_path=s3://$BUCKET/form_field/form_field \
-    # --form_event_output_path=s3://$BUCKET/form_event/form_event \
-    # --s3_region_name=$AWS_REGION \
-    # --s3_access_key_id=$AWS_ACCESS_KEY_ID \
-    # --s3_secret_access_key=$AWS_SECRET_ACCESS_KEY
+AWS_REGION='' AWS_ACCESS_KEY_ID=admin AWS_SECRET_ACCESS_KEY=password AWS_ENDPOINT_URL_S3=http://localhost:9000 \
+    poetry run python app.py \
+      --runner=DirectRunner \
+      --max_num_records=1 \
+      --bootstrap_servers=localhost:9092 \
+      --api_uri=http://localhost:8000 \
+      --form_field_output_path=s3://output/form_field/form_field \
+      --form_event_output_path=s3://output/form_event/form_event
 
 # Download Kafka
 curl https://packages.confluent.io/archive/7.3/confluent-community-7.3.2.tar.gz -o confluent-community-7.3.2.tar.gz
@@ -62,13 +62,10 @@ INFO:root:{'id': 'abcde', 'type': 'quiz', 'title': 'my test form', 'settings_lan
 ...
 ```
 
-Execute `ls` in the console to see the two output Avro files, which contain the same data as the JSON printed to the terminal.
+Check the Minio console for the output Avro files.
 
-```console
-...
-form_event-00000-of-00001.avro
-form_field-00000-of-00001.avro
-...
+```zsh
+open http://localhost:9000
 ```
 
 ## Data
@@ -200,7 +197,7 @@ If I had to do this for a production deployment, I would re-write the Apache Bea
 
 ### Design Choices & Reasoning
 
-### App architecture
+#### App architecture
 
 - The app is an Apache Beam app written with the Apache Beam Python SDK.
   - Python is probably the most common language used among data engineers.

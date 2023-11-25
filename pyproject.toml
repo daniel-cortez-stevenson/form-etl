@@ -1,7 +1,7 @@
 [tool.poetry]
 name = "form-etl"
 version = "0.1.0"
-description = ""
+description = "A locally tested Apache Beam streaming pipeline that extracts messages from a Kafka topic, enriches them with an external API, models the data, and writes it to S3."
 authors = ["Daniel Stevenson <26047171+daniel-cortez-stevenson@users.noreply.github.com>"]
 readme = "README.md"
 
